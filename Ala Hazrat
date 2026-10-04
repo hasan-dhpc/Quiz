@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>National Assessment Arena</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --primary-hover: #5b4bc4;
+            --background: #141419;
+            --surface: #202124;
+            --text: #ffffff;
+            --text-muted: #9aa0a6;
+            --accent: #fdcb6e;
+            --error: #ea4335;
+            --success: #00b894;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        .screenshot-shield-active .container {
+            filter: blur(40px) brightness(0.1) !important;
+            pointer-events: none !important;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            font-family: 'Urbanist', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .container {
+            background: var(--surface);
+            width: 100%;
+            max-width: 550px;
+            border-radius: 20px;
+            padding: 35px 30px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+            transition: filter 0.2s ease, transform 0.3s ease;
+        }
+
+        h2 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-align: center;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 15px;
+            text-align: center;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.2s ease;
+            -webkit-user-select: text;
+            -ms-user-select: text;
+            user-select: text; 
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .btn {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .btn:disabled {
+            background: #444;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .error-box {
+            color: var(--error);
+            background: rgba(234, 67, 53, 0.1);
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+            border: 1px solid rgba(234, 67, 53, 0.2);
+            line-height: 1.5;
+        }
+
+        .toast-notification {
+            position: fixed;
+            top: -70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--error);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 600;
+            box-shadow: 0 8px 30px rgba(234, 67, 53, 0.4);
+            z-index: 9999;
+            transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            white-space: nowrap;
+        }
+
+        .toast-notification.show {
+            top: 25px;
+        }
+
+        .instructions-list {
+            margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 22px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            list-style: none;
+        }
+
+        .instructions-list li {
+            margin-bottom: 14px;
+            font-size: 15px;
+            color: #e8eaed;
+            line-height: 1.6;
+            position: relative;
+            padding-left: 24px;
+        }
+
+        .instructions-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        .instructions-list li::before {
+            content: "✦";
+            color: var(--accent);
+            font-size: 14px;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 3px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), #a29bfe);
+            transition: width 0.4s ease;
+        }
+
+        .timer {
+            background: rgba(253, 203, 110, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(253, 203, 110, 0.25);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+        }
+
+        .timer.danger {
+            background: rgba(234, 67, 53, 0.15);
+            color: var(--error);
+            border-color: rgba(234, 67, 53, 0.3);
+            animation: pulse 0.5s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { opacity: 1; }
+            to { opacity: 0.6; }
+        }
+
+        .question-text {
+            font-size: 18px;
+            line-height: 1.6;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #f8f9fa;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            font-size: 15px;
+            color: #e8eaed;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+            outline: none;
+            line-height: 1.5;
+            font-family: inherit;
+        }
+
+        .option-btn:hover {
+            background: rgba(108, 92, 231, 0.08);
+            border-color: var(--primary);
+        }
+
+        .option-btn.selected {
+            background: rgba(108, 92, 231, 0.2) !important;
+            border-color: var(--primary) !important;
+            color: white;
+            font-weight: 600;
+        }
+
+        .status-icon {
+            font-size: 55px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .summary-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+            font-size: 15px;
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="premium-toast" class="toast-notification">⚠️ Please select an option before proceeding!</div>
+
+    <div class="container">
+        <!-- 1. LOGIN SCREEN -->
+        <div id="screen-login">
+            <h2>National Assessment Arena</h2>
+            <p class="subtitle">Enter your registered credentials to proceed</p>
+            <div class="error-box" id="login-error"></div>
+            <div class="input-group">
+                <label>Full Name</label>
+                <input type="text" id="input-name" placeholder="John Doe">
+            </div>
+            <div class="input-group">
+                <label>Registered Email</label>
+                <input type="email" id="input-email" placeholder="john@example.com">
+            </div>
+            <button class="btn" id="btn-verify" onclick="validateLogin()">Verify & Proceed</button>
+        </div>
+
+        <!-- 2. INSTRUCTIONS SCREEN -->
+        <div id="screen-directions" style="display: none;">
+            <h2>Rules & Guidelines</h2>
+            <p class="subtitle">Read carefully before entering the arena</p>
+            <ul class="instructions-list">
+                <li>You will be evaluated on <b>50 random questions</b> drawn from a certified 100-question pool.</li>
+                <li>Each question has an individual countdown of <b>40 seconds</b>.</li>
+                <li><b>Single Attempt Lock:</b> Once started, re-entry from this or any other device is restricted.</li>
+                <li><b>Integrity Shield:</b> Tab-switching, app switching, split-screen, or screenshot gestures will result in <b>instant disqualification</b>.</li>
+                <li>Total duration taken to complete the examination is monitored and logged.</li>
+            </ul>
+            <button class="btn" id="btn-start" onclick="startQuiz()">Start Quiz Arena</button>
+        </div>
+
+        <!-- 3. ACTIVE QUIZ SCREEN -->
+        <div id="screen-quiz" style="display: none;">
+            <div class="quiz-header">
+                <span id="ques-counter" style="font-size: 14px; font-weight: 600; color: var(--text-muted);">Question: 1 / 50</span>
+                <div class="timer" id="timer-badge">⏱️ <span id="time-left">40</span>s</div>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar" id="quiz-progress"></div>
+            </div>
+            <div class="question-text" id="question-text">Loading question...</div>
+            <div class="options-grid" id="options-container"></div>
+            <button class="btn" id="btn-submit-answer" onclick="submitAnswer()" style="margin-top: 15px;">Submit & Next</button>
+        </div>
+
+        <!-- 4. COMPLETION / TERMINATION SCREEN -->
+        <div id="screen-completion" style="display: none; text-align: center;">
+            <div id="status-icon" class="status-icon">🎉</div>
+            <h2 id="completion-title">Session Completed</h2>
+            <p id="session-subtitle" style="color: var(--error); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-top: -5px; margin-bottom: 15px; display: none;">Session Terminated</p>
+            <p id="thank-you-msg" style="color: var(--text-muted); font-size: 15px; margin-top: 10px; line-height: 1.6;"></p>
+            <div id="summary-area" class="summary-card"></div>
+            <p id="sheet-status" style="font-size: 14px; padding: 12px; border-radius: 8px; font-weight: 600;"></p>
+        </div>
+    </div>
+
+<script>
+    // 🔗 API ENDPOINTS
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxmjsNpJjhu8CAsCoGMUSVE9JpJpSVbhEJZIqP5M4QvMvx0Y3Qe0tpSn-TQmnCdI42zYQ/exec";
+    const SUBMISSION_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxtI-f-9kCPu-5U5bmsjctJRGQOrEXIMxQnOyjyMs7kHAoern6Mnjggda6BWAT0K5c/exec";
+
+    const warningSound = new Audio("race.mp3"); 
+    const buzzerSound = new Audio("https://assets.mixkit.co/active_storage/sfx/911/911-84.wav"); 
+    warningSound.volume = 0.6;
+    buzzerSound.volume = 0.6;
+
+    // CONFIGURATION
+    const QUIZ_SIZE = 50;
+    const SECONDS_PER_QUESTION = 40;
+
+    let questionPool = [];
+    let quizQuestions = [];
+    let userResponses = []; // Logs detailed responses for Sheet 2
+    let verifiedUser = { name: "", email: "" };
+    let currentQuesIdx = 0;
+    let timerInterval = null;
+    let timeLeft = SECONDS_PER_QUESTION;
+    let selectedOptionIdx = null;
+    let finalScore = 0;
+    let isQuizOver = false;
+    let totalAttempted = 0;
+    let totalTimeouts = 0;
+    let generatedTokenGlobal = "";
+    let quizStartTimeStamp = null;
+
+    // Fetch the 100-question pool dynamically from questions.json
+    fetch('questions.json')
+        .then(res => {
+            if (!res.ok) throw new Error("Could not load questions.json");
+            return res.json();
+        })
+        .then(data => {
+            questionPool = data;
+            console.log(`Loaded ${questionPool.length} questions from question pool.`);
+        })
+        .catch(err => {
+            console.error("Failed to load question bank:", err);
+            const errBox = document.getElementById('login-error');
+            errBox.style.display = 'block';
+            errBox.innerText = "Error: Question bank failed to load. Ensure questions.json is present in the repository.";
+        });
+
+    function showToastNotification() {
+        const toast = document.getElementById('premium-toast');
+        toast.classList.add('show');
+        setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function prepareShuffledQuiz() {
+        if (!questionPool || questionPool.length === 0) {
+            alert("Questions are still loading or missing. Please refresh.");
+            return false;
+        }
+
+        // 1. Shuffle all questions in pool
+        const shuffledPool = shuffleArray([...questionPool]);
+
+        // 2. Select only 50 questions
+        const selectedQuestions = shuffledPool.slice(0, Math.min(QUIZ_SIZE, shuffledPool.length));
+
+        // 3. Shuffle options for each chosen question
+        quizQuestions = selectedQuestions.map(q => ({
+            question: q.question,
+            options: shuffleArray([...q.options]),
+            correctAnswer: q.correctAnswer
+        }));
+
+        return true;
+    }
+
+    function getQuizDuration() {
+        if (!quizStartTimeStamp) return "N/A";
+        const totalSeconds = Math.floor((Date.now() - quizStartTimeStamp) / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        return `${minutes}m ${seconds}s`;
+    }
+
+    function validateLogin() {
+        const nameVal = document.getElementById('input-name').value.trim();
+        const emailVal = document.getElementById('input-email').value.trim().toLowerCase();
+        const errorBox = document.getElementById('login-error');
+        const verifyBtn = document.getElementById('btn-verify');
+
+        if (!nameVal || !emailVal) {
+            errorBox.style.display = 'block';
+            errorBox.innerText = "Please provide both your full name and registered email address.";
+            return;
+        }
+
+        const isAdminEmail = (emailVal === "noor@gmail.com" || emailVal === "admin@example.com");
+
+        if (!isAdminEmail && localStorage.getItem("quiz_attempted_" + emailVal)) {
+            errorBox.style.display = 'block';
+            errorBox.innerHTML = `<b>Access Denied:</b> This account or device has already completed this assessment. Single-attempt rules are enforced.`;
+            return;
+        }
+
+        if (isAdminEmail) {
+            verifiedUser = { name: nameVal, email: emailVal, isAdmin: true };
+            errorBox.style.display = 'none';
+            document.getElementById('screen-login').style.display = 'none';
+            document.getElementById('screen-directions').style.display = 'block';
+            return;
+        }
+
+        verifyBtn.disabled = true;
+
+        fetch(`${GOOGLE_SCRIPT_URL}?email=${encodeURIComponent(emailVal)}`)
+            .then(res => res.json())
+            .then(resData => {
+                verifyBtn.disabled = false;
+                if (!resData.isRegistered) {
+                    errorBox.style.display = 'block';
+                    errorBox.innerHTML = `<b>Access Denied:</b> This email is not registered for this examination. Contact administration.`;
+                } else if (resData.exists) {
+                    errorBox.style.display = 'block';
+                    errorBox.innerHTML = `<b>Access Denied:</b> An assessment submission has already been logged for this registered candidate.`;
+                } else {
+                    verifiedUser = { name: nameVal, email: emailVal, isAdmin: false };
+                    errorBox.style.display = 'none';
+                    document.getElementById('screen-login').style.display = 'none';
+                    document.getElementById('screen-directions').style.display = 'block';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                verifyBtn.disabled = false;
+                // Fallback allow on dispatcher error
+                verifiedUser = { name: nameVal, email: emailVal, isAdmin: false };
+                document.getElementById('screen-login').style.display = 'none';
+                document.getElementById('screen-directions').style.display = 'block';
+            });
+    }
+
+    function startQuiz() {
+        const prepared = prepareShuffledQuiz();
+        if (!prepared) return;
+
+        quizStartTimeStamp = Date.now(); // ⏱️ Capture exact starting timestamp
+
+        if (verifiedUser && verifiedUser.isAdmin !== true) {
+            localStorage.setItem("quiz_attempted_" + verifiedUser.email, "true");
+        }
+
+        document.getElementById('screen-directions').style.display = 'none';
+        document.getElementById('screen-quiz').style.display = 'block';
+
+        currentQuesIdx = 0;
+        finalScore = 0;
+        totalAttempted = 0;
+        totalTimeouts = 0;
+        userResponses = [];
+        isQuizOver = false;
+        generatedTokenGlobal = "EA-" + Math.floor(100000 + Math.random() * 900000);
+
+        loadQuestion();
+        setupAntiCheating();
+    }
+
+    function loadQuestion() {
+        if (isQuizOver) return;
+        clearInterval(timerInterval);
+        warningSound.pause();
+        warningSound.currentTime = 0;
+
+        timeLeft = SECONDS_PER_QUESTION;
+        selectedOptionIdx = null;
+        document.getElementById('timer-badge').classList.remove('danger');
+        document.getElementById('time-left').innerText = timeLeft;
+
+        document.getElementById('ques-counter').innerText = `Question: ${currentQuesIdx + 1} / ${quizQuestions.length}`;
+        const progressPercent = (currentQuesIdx / quizQuestions.length) * 100;
+        document.getElementById('quiz-progress').style.width = `${progressPercent}%`;
+
+        const currentQ = quizQuestions[currentQuesIdx];
+        document.getElementById('question-text').innerText = currentQ.question;
+
+        const optionsBox = document.getElementById('options-container');
+        optionsBox.innerHTML = '';
+
+        currentQ.options.forEach((option, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = option;
+            btn.onclick = () => selectOption(idx, btn);
+            optionsBox.appendChild(btn);
+        });
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            document.getElementById('time-left').innerText = timeLeft;
+
+            if (timeLeft === 5) {
+                warningSound.currentTime = 0;
+                warningSound.play().catch(e => console.log("Sound ready"));
+            }
+
+            if (timeLeft <= 10) {
+                document.getElementById('timer-badge').classList.add('danger');
+            }
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                warningSound.pause();
+                buzzerSound.currentTime = 0;
+                buzzerSound.play().catch(e => console.log("Buzzer fired"));
+
+                if (navigator.vibrate) { navigator.vibrate(300); }
+                totalTimeouts++;
+
+                // Record timeout in responses
+                const activeQ = quizQuestions[currentQuesIdx];
+                userResponses.push({
+                    qIndex: currentQuesIdx + 1,
+                    question: activeQ.question,
+                    selectedOption: "TIMED OUT",
+                    correctAnswer: activeQ.correctAnswer,
+                    isCorrect: false
+                });
+
+                saveResponseAndNext(false);
+            }
+        }, 1000);
+    }
+
+    function selectOption(idx, btnElement) {
+        if (isQuizOver) return;
+        selectedOptionIdx = idx;
+        const allBtns = document.querySelectorAll('.option-btn');
+        allBtns.forEach(btn => btn.classList.remove('selected'));
+        btnElement.classList.add('selected');
+    }
+
+    function submitAnswer() {
+        if (selectedOptionIdx === null) {
+            showToastNotification();
+            return;
+        }
+
+        clearInterval(timerInterval);
+        warningSound.pause();
+        totalAttempted++;
+
+        const activeQ = quizQuestions[currentQuesIdx];
+        const selectedValue = activeQ.options[selectedOptionIdx];
+        const isAnswerCorrect = (selectedValue === activeQ.correctAnswer);
+
+        if (isAnswerCorrect) {
+            finalScore++;
+        }
+
+        // 📝 Record detailed candidate response
+        userResponses.push({
+            qIndex: currentQuesIdx + 1,
+            question: activeQ.question,
+            selectedOption: selectedValue,
+            correctAnswer: activeQ.correctAnswer,
+            isCorrect: isAnswerCorrect
+        });
+
+        saveResponseAndNext(true);
+    }
+
+    function saveResponseAndNext(answered) {
+        if (isQuizOver) return;
+        currentQuesIdx++;
+        if (currentQuesIdx < quizQuestions.length) {
+            loadQuestion();
+        } else {
+            document.getElementById('screen-quiz').style.display = 'none';
+            document.getElementById('screen-completion').style.display = 'block';
+            sendDataToGoogleSheet("Clean Attempt");
+        }
+    }
+
+    function setupAntiCheating() {
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
+        // Multi-touch screenshot guard
+        window.addEventListener('touchstart', (e) => {
+            if (e.touches.length >= 2 && !isQuizOver) {
+                if (verifiedUser && verifiedUser.isAdmin === true) return;
+                document.body.classList.add('screenshot-shield-active');
+                setTimeout(() => { document.body.classList.remove('screenshot-shield-active'); }, 1500);
+            }
+        }, { passive: true });
+
+        // Tab-switch watchdog
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden && !isQuizOver) {
+                handleCriticalCheating("Tab Switching Detected");
+            }
+        });
+
+        // App-switch / Split-screen watchdog
+        window.addEventListener("blur", () => {
+            if (!isQuizOver) {
+                if (verifiedUser && verifiedUser.isAdmin === true) return;
+                handleCriticalCheating("Split-Screen or App Switch Detected");
+            }
+        });
+
+        function handleCriticalCheating(reasonLabel = "Disqualified") {
+            isQuizOver = true;
+            clearInterval(timerInterval);
+            warningSound.pause();
+
+            document.body.classList.remove('screenshot-shield-active');
+            document.getElementById('screen-quiz').style.display = 'none';
+            document.getElementById('screen-directions').style.display = 'none';
+            document.getElementById('screen-completion').style.display = 'block';
+
+            document.getElementById('status-icon').innerText = '🚫';
+            document.getElementById('completion-title').innerText = "Session Terminated";
+            document.getElementById('completion-title').style.color = "var(--error)";
+            document.getElementById('session-subtitle').style.display = "block";
+
+            const displayName = verifiedUser.name || "Candidate";
+            document.getElementById('thank-you-msg').innerText = `Notice: ${displayName}, your examination session has been terminated due to policy violations (leaving the browser or active window blur).`;
+
+            document.getElementById('summary-area').innerHTML = `
+                • <b>Status:</b> Terminated / Disqualified<br>
+                • <b>Reason:</b> ${reasonLabel}<br>
+                • <b>Action:</b> Audit record and current marks dispatched to the central register.
+            `;
+
+            sendDataToGoogleSheet("DQ: " + reasonLabel);
+        }
+    }
+
+    function sendDataToGoogleSheet(remarksValue = "Clean Attempt") {
+        isQuizOver = true;
+        clearInterval(timerInterval);
+
+        const timeTakenFormatted = getQuizDuration(); // ⏱️ Exact elapsed time
+        const scoreText = (remarksValue === "Clean Attempt") ? `${finalScore} / ${quizQuestions.length}` : `DQ (${finalScore}/${quizQuestions.length})`;
+
+        const formData = new FormData();
+        formData.append("name", verifiedUser.name || "N/A");
+        formData.append("email", verifiedUser.email || "N/A");
+        formData.append("score", scoreText);
+        formData.append("remarks", remarksValue);
+        formData.append("token", generatedTokenGlobal);
+        formData.append("time_taken", timeTakenFormatted);
+        formData.append("detailed_answers", JSON.stringify(userResponses)); // 📋 Detailed responses payload
+
+        const displayName = verifiedUser.name || "Candidate";
+        const statusLabel = document.getElementById('sheet-status');
+
+        if (remarksValue === "Clean Attempt") {
+            document.getElementById('thank-you-msg').innerText = `Thank you, ${displayName}! Your assessment has been completed successfully.`;
+            document.getElementById('summary-area').innerHTML = `
+                📌 <b>Assessment Summary:</b><br>
+                • Total Questions Evaluated: ${quizQuestions.length}<br>
+                • Answered Questions: ${totalAttempted}<br>
+                • Expired / Timed Out: ${totalTimeouts}<br>
+                • <b>Time Taken:</b> ${timeTakenFormatted}<br>
+                • Audit Verification Token: <b style="color: var(--accent);">${generatedTokenGlobal}</b><br><br>
+                <span style="font-size:13px; color: var(--text-muted);">*Final certified ranks will be compiled and published through official administrator registers.</span>
+            `;
+
+            statusLabel.style.color = "var(--success)";
+            statusLabel.style.background = "rgba(0,184,148,0.08)";
+            statusLabel.innerText = "✓ Examination verified and synced with administrative database.";
+        } else {
+            statusLabel.style.color = "var(--error)";
+            statusLabel.style.background = "rgba(234,67,53,0.08)";
+            statusLabel.innerText = "⚠️ Disqualification log dispatched to administrative records.";
+        }
+
+        fetch(SUBMISSION_SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            body: formData
+        }).then(() => console.log("Telemetry payload transmitted successfully."));
+    }
+</script>
+</body>
+</html>
